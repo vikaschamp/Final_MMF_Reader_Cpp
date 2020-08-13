@@ -29,5 +29,14 @@
     <ClInclude Include="BlockingQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Event_Based_Queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

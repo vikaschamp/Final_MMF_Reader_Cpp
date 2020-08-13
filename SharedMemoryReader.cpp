@@ -178,16 +178,34 @@ void SharedMemoryReader::SpawnParralerThread(HANDLE openEvent, void* address, DW
 		auto output = (char*)address + vieDelta;
 		auto iData = (New_Request*)output;
 		auto stopReading = iData->stopWatchTime = std::chrono::high_resolution_clock::now();
-		_BackgroundQueue.Push(*iData);
-		auto queueFinish = std::chrono::high_resolution_clock::now();
-		auto ReadingElapsed = queueFinish.time_since_epoch().count()-  stopReading.time_since_epoch().count();
 
 
-		/*iData->print();*/
 
-		//auto elapsed = startReading.time_since_epoch().count() - iData->SecurityId;
-		cout << readCount << " queuing elapsed " << ReadingElapsed * 0.001 <<std::endl;
-		//cout << iData->ClOrderID << " " << iData->RequestType << endl;
+		_eventQueue.push(*iData);
+		//	_BackgroundQueue.Push(*iData);
+		auto stopQueueing = std::chrono::high_resolution_clock::now();
+		//auto queueFinish = std::chrono::high_resolution_clock::now();
+		auto elapsedQueueing = (stopQueueing.time_since_epoch().count() - stopReading.time_since_epoch().count()) * 0.001;
+		auto ReadingElapsed = (stopReading.time_since_epoch().count() - iData->ClOrderID) * 0.001;
+
+		std::cout << " Queue " << elapsedQueueing << std::endl;
+
+		/*recordCount += 1;
+		if (ReadingElapsed < 30)
+			localCount += 1;
+		if (recordCount == 1000)
+		{
+			std::cout << localCount << " " << ReadingElapsed << std::endl;
+
+			break;
+		}*/
+
+
+		///*iData->print();*/
+
+		////auto elapsed = startReading.time_since_epoch().count() - iData->SecurityId;
+		//cout << readCount << " queuing elapsed " << ReadingElapsed * 0.001 <<std::endl;
+		////cout << iData->ClOrderID << " " << iData->RequestType << endl;
 	}
 
 }
@@ -284,12 +302,17 @@ void SharedMemoryReader::BackgroundProcess()
 	for (;;)
 	{
 		New_Request request;
-		if (_BackgroundQueue.Pop(request))
+		if (_eventQueue.size() > 0 && _eventQueue.pop(request))
 		{
-			//request.print();
-			auto ReadingElapsed = request.stopWatchTime.time_since_epoch().count() - request.ClOrderID;
-			cout << readCount << " reading elapsed " << ReadingElapsed * 0.001 << std::endl;
+			request.print();
+			auto ReadingElapsed = (request.stopWatchTime.time_since_epoch().count() - request.ClOrderID) * 0.001;
+			cout << readCount << " reading elapsed " << ReadingElapsed << std::endl;
+
+
 		}
+		else
+			_eventQueue.wait(INFINITE);
+
 	}
 
 }

@@ -10,6 +10,7 @@
 #include <thread>
 #include <future>
 #include "BlockingQueue.h"
+#include "Event_Based_Queue.h"
 using namespace std;
 #define BYTESIZE 120;
 #define PADDING 10;
@@ -80,8 +81,14 @@ private:
 
 	void SpawnParralerThread(HANDLE, void*, DWORD, int);
 
-	BlockingQueue<New_Request> _BackgroundQueue;
+	FIX::Queue<New_Request> _eventQueue;
 
+	BlockingQueue<New_Request> _BackgroundQueue;
+	
+	
+
+	int localCount = 0;
+	int recordCount = 0;
 
 public:
 	SharedMemoryReader(string, int, int);
